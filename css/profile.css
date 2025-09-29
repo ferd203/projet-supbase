@@ -35,6 +35,7 @@ body {
   font-size: 0.9rem;
   cursor: pointer;
   display: flex;
+  max-width: 60px;
   align-items: center;
   gap: 6px;
   transition: background 0.2s;
@@ -101,8 +102,8 @@ body {
   background: #f0f2f5;
   border: none;
   border-radius: 50%;
-  width: 42px;
-  height: 42px;
+  width: 80px;
+  height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
