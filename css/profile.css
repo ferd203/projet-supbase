@@ -35,7 +35,7 @@ body {
   font-size: 0.9rem;
   cursor: pointer;
   display: flex;
-  max-width: 60px;
+  
   align-items: center;
   gap: 6px;
   transition: background 0.2s;
