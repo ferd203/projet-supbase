@@ -73,11 +73,20 @@ async function creerUser(mail, password) {
  */
 async function connecterUser(mail, password) {
     showLoader();
+    if(!password || !mail) {
+        showPopup("Veuillez renseigner tous les champs", "error");
+        hideLoader();
+        return;
+    }
     const { data, error } = await supabase.auth.signInWithPassword({ email: mail, password: password });
     hideLoader();
-
+ 
     if (error) {
         showPopup("Email ou mot de passe incorrect", "error");
+        return;
+    }
+    if (!data.user) {
+        showPopup("Utilisateur non trouvé", "error");
         return;
     }
 
@@ -226,6 +235,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 e.preventDefault();
                 const mail = document.getElementById('emailc').value;
                 const password = document.getElementById('passwordc').value;
+                
                 await connecterUser(mail, password);
             });
         }
