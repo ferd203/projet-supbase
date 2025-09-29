@@ -341,7 +341,7 @@ if (btnsave) {
     });
 }
 
-/
+
 async function modifierProfile(userId, username, bio) {
     const { data, error } = await supabase
         .from('profiles')
