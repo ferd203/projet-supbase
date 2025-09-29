@@ -1,30 +1,62 @@
+// Initialisation du client Supabase
 const apikey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhiZXF0dG5rY25lcmZsbmZ1aGp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4NzI4MjcsImV4cCI6MjA3NDQ0ODgyN30.vhHrJL1mxnCa7jkt1Kv4xmHmINH1Vf8cnyJHradb_qk'
 const apikey_url = 'https://hbeqttnkcnerflnfuhjw.supabase.co'
-
-
 const supabase = window.supabase.createClient(apikey_url, apikey)
 
-// Fonction pour créer un utilisateur
+// --- Fonctions d'aide ---
+
+function showLoader() {
+    const loader = document.getElementById("loader");
+    if (loader) loader.style.display = "block";
+}
+
+function hideLoader() {
+    const loader = document.getElementById("loader");
+    if (loader) loader.style.display = "none";
+}
+
+function showPopup(message, type = 'error', redirectUrl = null) {
+    const overlay = document.getElementById("popup-overlay");
+    const popup = document.getElementById("popup-card");
+    const popupMessage = document.getElementById("popup-message");
+    const okLink = document.getElementById("popup-ok");
+
+    if (!overlay || !popup || !popupMessage || !okLink) return;
+
+    popupMessage.textContent = message;
+    popup.classList.remove('popup-error', 'popup-success', 'popup-info');
+
+    if (type === 'error') popup.classList.add('popup-error');
+    else if (type === 'success') popup.classList.add('popup-success');
+    else if (type === 'info') popup.classList.add('popup-info');
+
+    overlay.style.display = 'block';
+
+    okLink.onclick = (e) => {
+        e.preventDefault();
+        closePopup();
+        if (redirectUrl) {
+            window.location.replace(redirectUrl);
+        }
+    };
+}
+
+function closePopup() {
+    const overlay = document.getElementById("popup-overlay");
+    if (overlay) overlay.style.display = 'none';
+}
+
+// --- Fonctions de gestion des utilisateurs ---
+
 /**
- * Crée un nouvel utilisateur dans Supabase Auth.
- * Affiche un loader pendant l'opération, gère les erreurs (email déjà existant)
- * et affiche des popups de succès ou d'erreur.
- * @param {string} mail - L'adresse email de l'utilisateur à créer.
- * @param {string} password - Le mot de passe de l'utilisateur.
- * @returns {Promise<void>} Une promesse qui se résout une fois l'opération terminée. Ne retourne aucune valeur.
+ * Crée un nouvel utilisateur.
  */
 async function creerUser(mail, password) {
     showLoader();
-
-    const { data, error } = await supabase.auth.signUp({
-        email: mail,
-        password: password,
-    });
-
+    const { error } = await supabase.auth.signUp({ email: mail, password: password });
     hideLoader();
-    console.log(error);
+
     if (error) {
-        // Vérifie si l'erreur vient d'un email déjà enregistré
         if (error.message.includes("User already registered")) {
             showPopup("Cet email existe déjà. Veuillez en choisir un autre ou vous connecter.", "error");
         } else {
@@ -33,457 +65,253 @@ async function creerUser(mail, password) {
         return;
     }
 
-    // Si pas d'erreur, alors inscription réussie
-    showPopup(
-        "Inscription réussie ! Veuillez vérifier votre email pour confirmer votre compte.",
-        "success",
-        "login.html" // redirection après confirmation
-    );
+    showPopup("Inscription réussie ! Veuillez vérifier votre email pour confirmer votre compte.", "success", "login.html");
 }
 
-
-// Écoute du bouton de créationT 
-btncrer = document.getElementById('btnCreation')
-
-// Écoute du bouton de créationT 
-btncrer = document.getElementById('btnCreation')
-
-if (btncrer) {
-    /**
-     * Gère l'événement de clic sur le bouton de création de compte.
-     * Récupère les informations du formulaire, valide que les champs sont remplis
-     * et que les mots de passe correspondent, puis appelle la fonction `creerUser`.
-     * @param {Event} e - L'objet d'événement de clic.
-     */
-    btncrer.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const mail = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-
-        if (!mail || !password || password !== confirmPassword) {
-            showPopup("Veuillez remplir tous les champs correctement.", "error");
-            return;
-        }
-
-        await creerUser(mail, password);
-    });
-}
-
-
-
-// Fonction pour connecter un utilisateur
 /**
- * Connecte un utilisateur avec son email et son mot de passe.
- * Après une authentification réussie, vérifie si un profil utilisateur existe.
- * Redirige vers la page d'accueil si un profil existe, sinon vers la page de création de profil.
- * Gère les erreurs de connexion en affichant un popup.
- * @param {string} mail - L'adresse email de l'utilisateur.
- * @param {string} password - Le mot de passe de l'utilisateur.
- * @returns {Promise<void>} Une promesse qui se résout une fois l'opération terminée. Ne retourne aucune valeur.
+ * Connecte un utilisateur.
  */
 async function connecterUser(mail, password) {
     showLoader();
-
-    // Tentative de connexion
-    const { data, error } = await supabase.auth.signInWithPassword({
-        email: mail,
-        password: password,
-    });
-
+    const { data, error } = await supabase.auth.signInWithPassword({ email: mail, password: password });
     hideLoader();
 
     if (error) {
         showPopup("Email ou mot de passe incorrect", "error");
-
         return;
     }
 
     const userId = data.user.id;
-    // Vérifier si l'utilisateur a déjà un profile
-    const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single(); // on récupère un seul profile
+    const { data: profile, error: profileError } = await supabase.from('profiles').select('*').eq('id', userId).single();
 
-    if (profileError && profileError.code !== 'PGRST116') { // ignore "No rows found"
+    if (profileError && profileError.code !== 'PGRST116') {
         showPopup("Erreur lors de la vérification du profile : " + profileError.message, "error");
         return;
     }
 
     if (profile) {
-        // Profile existant → redirection vers accueil
-
         window.location.href = "index.html";
-        ;
     } else {
-        // Pas de profile → redirection vers création de profile
-
         window.location.href = "profile.html";
-        console.log(data.user.id);
     }
 }
 
-// Écoute du bouton connexion
-const btnConnexion = document.getElementById('btnconnecter');
-if (btnConnexion) {
-    btnConnexion.addEventListener('click', async function (e) {
-        e.preventDefault();
-        const mail = document.getElementById('emailc').value;
-        const password = document.getElementById('passwordc').value;
-
-        await connecterUser(mail, password);
-    });
-}
-
-
-
-// Initialisation de la page profile
 /**
- * Initialise la page de création de profil.
- * Vérifie si l'utilisateur est authentifié. S'il ne l'est pas, il est redirigé vers la page de connexion.
- * Ajoute un écouteur d'événement sur le bouton de création de profil pour récupérer les données du formulaire
- * et appeler la fonction `ajouterProfile` lors de la soumission.
- * @returns {Promise<void>} Une promesse qui se résout une fois l'initialisation terminée. Ne retourne aucune valeur.
- */
-async function initProfilePage() {
-    // Vérifier que nous sommes bien sur la page profile
-    if (!document.getElementById('profilecreation')) return;
-
-    const { data: { session }, error } = await supabase.auth.getSession();
-
-    if (error || !session) {
-        // Rediriger vers login seulement si on n'est pas déjà sur login
-        if (window.location.pathname !== '/login.html') {
-            window.location.href = "login.html";
-        }
-        return;
-    }
-
-    const userId = session.user.id;
-
-    // Écoute du bouton de création de profile
-    profileCreation = document.getElementById('profilecreation');
-    if (profileCreation) {
-        profileCreation.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const bio = document.getElementById('bio').value;
-
-            if (!username || !bio) {
-                console.log("Veuillez remplir tous les champs.");
-                showPopup("Veuillez remplir tous les champs.", "error");
-                return;
-            } else {
-                await ajouterProfile(userId, username, bio);
-            }
-
-        });
-    }
-}
-
-
-
-// Appel seulement sur profile.html
-
-
-
-// Fonction pour ajouter un profile dans la table 'profiles'
-/**
- * Ajoute un nouveau profil utilisateur dans la table 'profiles' de Supabase.
- * Affiche un popup de succès et redirige vers la page d'accueil en cas de réussite,
- * ou un popup d'erreur en cas d'échec.
- * @param {string} userId - L'ID de l'utilisateur pour lequel créer le profil.
- * @param {string} username - Le nom d'utilisateur à enregistrer dans le profil.
- * @param {string} bio - La biographie de l'utilisateur.
- * @returns {Promise<void>} Une promesse qui se résout une fois l'opération terminée. Ne retourne aucune valeur.
+ * Ajoute un nouveau profil utilisateur.
  */
 async function ajouterProfile(userId, username, bio) {
-    const { data, error } = await supabase
-        .from('profiles')
-        .insert([{ id: userId, username, bio }])
-        .select();
+    showLoader();
+    const { error } = await supabase.from('profiles').insert([{ id: userId, username, bio }]);
+    hideLoader();
 
     if (error) {
-        showPopup("Erreur lors de la création du profile : ", "error");
+        showPopup("Erreur lors de la création du profile.", "error");
         return;
     }
 
-    // Profile créé → redirection vers accueil
     showPopup("Profile ajouté avec succès !", "success", "index.html");
 }
 
-
-//Fonction supprimer proifle
+/**
+ * Supprime un profil utilisateur.
+ */
 async function supprimerProfile(userId) {
-    const { error } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', userId);
+    const { error } = await supabase.from('profiles').delete().eq('id', userId);
     if (error) {
+        console.error("Error deleting profile:", error);
         return;
     }
     showPopup("Profile supprimé avec succès!", "success", "login.html");
-
-
-}
-
-function showLoader() {
-    document.getElementById("loader").style.display = "block";
-}
-
-//Masquer le loader barner
-function hideLoader() {
-    document.getElementById("loader").style.display = "none";
-}
-function showPopup(message, type = 'error', redirectUrl = null) {
-    const overlay = document.getElementById("popup-overlay");
-    const popup = document.getElementById("popup-card");
-    const popupMessage = document.getElementById("popup-message");
-    const okLink = document.getElementById("popup-ok");
-
-
-    // Mettre le message
-    popupMessage.textContent = message;
-
-    // Supprimer toutes les classes de type
-    popup.classList.remove('popup-error', 'popup-success', 'popup-info');
-
-    // Ajouter la classe correspondant au type
-    if (type === 'error') popup.classList.add('popup-error');
-    else if (type === 'success') popup.classList.add('popup-success');
-    else if (type === 'info') popup.classList.add('popup-info');
-
-    // Afficher le popup
-    overlay.style.display = 'block';
-
-    // Fermer avec le lien OK
-    okLink.onclick = (e) => {
-        e.preventDefault();
-        closePopup();
-
-        // Redirection seulement après clic sur OK
-        if (redirectUrl) {
-            window.location.replace(redirectUrl);
-        }
-    };
-}
-btnAnnuler = document.getElementById('btnAnnuler');
-if (btnAnnuler) {
-    btnAnnuler.onclick = (e) => {
-        e.preventDefault();
-        document.getElementById("modalModifier").style.display = 'none';
-    };
-}
-if (window.location.pathname.includes("index.html")) {
-    recupererProfile();
-    const deconexionbtn = document.getElementById('deconnexion');
-    if (deconexionbtn) {
-        deconexionbtn.addEventListener('click', async function (e) {
-            e.preventDefault();
-            await supabase.auth.signOut();
-            window.location.replace("login.html");
-        });
-    }
-    // Supprimer le profile
-    const supprimerbtn = document.getElementById("delete-btn");
-    if (supprimerbtn) {
-        console.log(supprimerbtn)
-        supprimerbtn.addEventListener('click', async function (e) {
-            e.preventDefault();
-            const { data: { user, error } } = await supabase.auth.getUser()
-            if (error || !user) {
-                return null;
-            }
-            console.log(user.id);
-            await supprimerProfile(user.id);
-
-        });
-    }
-
-    const btnmodifier = document.getElementById("btnmodifier");
-    if (btnmodifier) {
-        btnmodifier.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const { data: { user, error } } = await supabase.auth.getUser()
-            if (error || !user) {
-                return null;
-            }
-            const { data: profile, erro } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', user.id)
-                .single();
-            console.log(profile);
-            if (erro) {
-                console.log('Erreur lors de la récupération du profile :');
-                return;
-            }
-            console.log(profile);
-            if (profile) {
-                document.getElementById("editusername").value = profile.username;
-                document.getElementById("editbio").value = profile.bio;
-                document.getElementById("modalModifier").style.display = 'flex';
-            }
-        });
-    }
-
-    const btnAnnuler = document.getElementById("btnAnnuler");
-    if (btnAnnuler) {
-        btnAnnuler.onclick = (e) => {
-            e.preventDefault();
-            document.getElementById("modalModifier").style.display = 'none';
-        };
-    }
-}
-function closePopup() {
-    document.getElementById("popup-overlay").style.display = 'none';
-}
-
-
-
-/**
- * Récupère le profil de l'utilisateur actuellement authentifié.
- * Cette fonction obtient d'abord l'utilisateur courant depuis Supabase Auth.
- * Ensuite, elle utilise l'ID de l'utilisateur pour récupérer les informations de son profil
- * depuis la table 'profiles'. Si le profil est trouvé, elle appelle la fonction `afficageProfile`
- * pour afficher les données sur la page.
- * @returns {Promise<null|void>} Une promesse qui se résout avec `null` si aucun utilisateur n'est trouvé ou en cas d'erreur, sinon elle ne retourne rien directement mais déclenche l'affichage du profil.
- */
-async function recupererProfile() {
-    const { data: { user, error } } = await supabase.auth.getUser()
-    if (error || !user) {
-        return null;
-    }
-    const { data: profile, erro } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-   
-    if (erro) {
-        
-        return;
-    }
-    afficageProfile(profile);
-}
-
-btnsave = document.getElementById('btnsave');
-if (btnsave) {
-    btnsave.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const { data: { user, error } } = await supabase.auth.getUser()
-        if (error || !user) {
-            return null;
-        }
-        const username = document.getElementById('editusername').value;
-        const bio = document.getElementById('editbio').value;
-        if (!username || !bio) {
-            
-            showPopup("Veuillez remplir tous les champs.", "error");
-            return;
-        } else {
-            await modifierProfile(user.id, username, bio);
-            document.getElementById("modalModifier").style.display = 'none';
-        }
-        showPopup("Profile modifié avec succès!", "success");
-        window.location.replace("index.html");
-        
-    });
 }
 
 /**
- * Modifie le profil d'un utilisateur existant dans la table 'profiles' de Supabase.
- * Met à jour le nom d'utilisateur et la biographie en fonction de l'ID utilisateur fourni.
- * En cas d'erreur, un message est affiché dans la console.
- * @param {string} userId - L'ID de l'utilisateur dont le profil doit être mis à jour.
- * @param {string} username - Le nouveau nom d'utilisateur à enregistrer.
- * @param {string} bio - La nouvelle biographie à enregistrer.
- * @returns {Promise<void>} Une promesse qui se résout une fois l'opération terminée. Ne retourne aucune valeur.
+ * Modifie un profil utilisateur existant.
  */
 async function modifierProfile(userId, username, bio) {
-    const { data, error } = await supabase
-        .from('profiles')
-        .update({ username, bio })
-        .eq('id', userId);
+    const { error } = await supabase.from('profiles').update({ username, bio }).eq('id', userId);
     if (error) {
-        console.log('Erreur lors de la modification du profile :');
-        return;
+        console.error('Erreur lors de la modification du profile:', error);
     }
 }
 
+// --- Manipulation du DOM et écouteurs d'événements ---
+
 /**
- * Affiche les informations du profil utilisateur sur la page.
- * Met à jour les éléments HTML avec l'ID 'username' et 'bio' avec les données du profil.
- * @param {object} profile - L'objet profil contenant les informations de l'utilisateur.
- * @param {string} profile.username - Le nom d'utilisateur à afficher.
- * @param {string} profile.bio - La biographie de l'utilisateur à afficher.
- * @returns {void} Cette fonction ne retourne aucune valeur.
+ * Affiche les informations du profil sur la page.
  */
 function afficageProfile(profile) {
     if (!profile) return;
     const usernameElement = document.getElementById('username');
     const bioElement = document.getElementById('bio');
-    usernameElement.textContent = profile.username;
-    bioElement.textContent = profile.bio;
+    if (usernameElement) usernameElement.textContent = profile.username;
+    if (bioElement) bioElement.textContent = profile.bio;
 }
-if (window.location.pathname.includes("index.html")) {
-    recupererProfile();
-    deconexionbtn = document.getElementById('deconnexion');
-    if (deconexionbtn) {
-        deconexionbtn.addEventListener('click', async function (e) {
-            e.preventDefault();
-            await supabase.auth.signOut();
-            window.location.replace("login.html");
-        });
-    }
-    // Supprimer le profile
-    supprimerbtn = document.getElementById("delete-btn");
-    if (supprimerbtn) {
-        console.log(supprimerbtn)
-        supprimerbtn.addEventListener('click', async function (e) {
-            e.preventDefault();
-            const { data: { user, error } } = await supabase.auth.getUser()
-            if (error || !user) {
-                return null;
-            }
-            console.log(user.id);
-            await supprimerProfile(user.id);
-
-        });
-    }
-}
-
 
 /**
- * Gère l'initialisation de la page lorsque le DOM est entièrement chargé.
- * Cette fonction vérifie si la page actuelle nécessite une authentification.
- * Si un utilisateur non authentifié tente d'accéder à une page protégée, il est redirigé vers la page de connexion.
- * Elle s'assure également que le contenu de la page d'accueil est affiché uniquement après la vérification de la session.
- * @listens DOMContentLoaded
- * @returns {Promise<void>} Une promesse qui se résout une fois les vérifications et les actions initiales terminées. Ne retourne aucune valeur directe.
+ * Récupère et affiche le profil de l'utilisateur.
  */
+/**
+ * Récupère et affiche le profil de l'utilisateur.
+ */
+async function recupererProfile() {
+    // Récupérer l'utilisateur actuel
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // S'il n'y a pas d'utilisateur, rediriger vers la page de connexion
+    if (!user) {
+        window.location.replace("login.html");
+        return;
+    }
+
+    // Tenter de récupérer le profil de l'utilisateur
+    const { data: profile, error } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+
+    // Vérifier l'erreur. Si c'est une erreur "aucune ligne trouvée" (code PGRST116)
+    // rediriger l'utilisateur vers la page de création de profil.
+    if (error && error.code === 'PGRST116') {
+        window.location.replace("profile.html");
+        return;
+    }
+
+    // Gérer les autres types d'erreurs
+    if (error) {
+        console.error('Erreur lors de la récupération du profil:', error);
+        return;
+    }
+    
+    // Si le profil est trouvé, l'afficher
+    afficageProfile(profile);
+}
+
+// Écouteur d'événement pour le chargement du DOM
 document.addEventListener("DOMContentLoaded", async () => {
     const page = window.location.pathname.split("/").pop();
     const protectedPages = ["index.html", "profile.html"];
 
+    // Vérification de l'authentification sur les pages protégées
     if (protectedPages.includes(page)) {
         const { data: { session } } = await supabase.auth.getSession();
-
         if (!session) {
             window.location.replace("login.html");
             return;
         }
-    }
-    if (window.location.pathname.includes("index.html")) {
         document.body.style.display = "block";
     }
 
-    // Si on arrive ici → utilisateur autorisé
+    // Initialisation du contenu selon la page actuelle
+    if (page === "signup.html") {
+        const btncrer = document.getElementById('btnCreation');
+        if (btncrer) {
+            btncrer.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const mail = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
 
+                if (!mail || !password || password !== confirmPassword) {
+                    showPopup("Veuillez remplir tous les champs correctement.", "error");
+                    return;
+                }
+                await creerUser(mail, password);
+            });
+        }
+    } else if (page === "login.html") {
+        const btnConnexion = document.getElementById('btnconnecter');
+        if (btnConnexion) {
+            btnConnexion.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const mail = document.getElementById('emailc').value;
+                const password = document.getElementById('passwordc').value;
+                await connecterUser(mail, password);
+            });
+        }
+    } else if (page === "profile.html") {
+        const profileCreation = document.getElementById('profilecreation');
+        if (profileCreation) {
+            profileCreation.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session) {
+                    showPopup("Erreur de session.", "error");
+                    return;
+                }
+                const userId = session.user.id;
+                const username = document.getElementById('username').value;
+                const bio = document.getElementById('bio').value;
+
+                if (!username || !bio) {
+                    showPopup("Veuillez remplir tous les champs.", "error");
+                    return;
+                }
+                await ajouterProfile(userId, username, bio);
+            });
+        }
+    } else if (page === "index.html") {
+
+        
+        recupererProfile();
+        console.log(recupererProfile());
+        const deconexionbtn = document.getElementById('deconnexion');
+        if (deconexionbtn) {
+            deconexionbtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                await supabase.auth.signOut();
+                window.location.replace("login.html");
+            });
+        }
+
+        const supprimerbtn = document.getElementById("delete-btn");
+        if (supprimerbtn) {
+            supprimerbtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) return;
+                await supprimerProfile(user.id);
+            });
+        }
+
+        const btnmodifier = document.getElementById("btnmodifier");
+        if (btnmodifier) {
+            btnmodifier.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) return;
+                const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+                if (profile) {
+                    document.getElementById("editusername").value = profile.username;
+                    document.getElementById("editbio").value = profile.bio;
+                    document.getElementById("modalModifier").style.display = 'flex';
+                }
+            });
+        }
+
+        const btnAnnuler = document.getElementById("btnAnnuler");
+        if (btnAnnuler) {
+            btnAnnuler.onclick = (e) => {
+                e.preventDefault();
+                document.getElementById("modalModifier").style.display = 'none';
+            };
+        }
+
+        const btnsave = document.getElementById('btnsave');
+        if (btnsave) {
+            btnsave.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) return;
+
+                const username = document.getElementById('editusername').value;
+                const bio = document.getElementById('editbio').value;
+
+                if (!username || !bio) {
+                    showPopup("Veuillez remplir tous les champs.", "error");
+                    return;
+                }
+
+                await modifierProfile(user.id, username, bio);
+                document.getElementById("modalModifier").style.display = 'none';
+                showPopup("Profile modifié avec succès!", "success", "index.html");
+            });
+        }
+    }
 });
-
-
-// Initialisation de la page profile
-initProfilePage();
