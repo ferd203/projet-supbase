@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Profile utilisateur</title>
+  <link rel="stylesheet" href="css/profile.css">
+  <!-- Icônes Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <div id="modalModifier" class="modal">
+    <div class="modal-content">
+      <h3>Modifier le Livre</h3>
+      <form id="formModifier">
+        <label for="usernamemod">Nom d'utilisateur</label>
+        <input type="text" id="editusername">
+
+        <label for="editbio">Bio</label>
+        <textarea name="editbio" id="editbio"></textarea> 
+
+        <div class="modal-actions">
+          <button type="submit" id="btnsave">💾 Sauvegarder</button>
+          <button type="button" id="btnAnnuler">❌ Annuler</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <header class="header">
+    <h1>Mon Profil</h1>
+    <button class="btn-logout" id="deconnexion">
+      <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+    </button>
+  </header>
+
+  <main class="profile-wrapper">
+    <section class="profile-card">
+      <div class="profile-header">
+     
+        <div>
+          <h2 id="username"></h2>
+          <p id="bio"></p>
+        </div>
+      </div>
+
+      <div class="profile-actions">
+        <button class="icon-btn edit-btn" title="Modifier le profil" id="btnmodifier">
+          <i class="fa-solid fa-pen"></i>
+        </button>
+        <button class="icon-btn delete-btn" title="Supprimer le profil" id="delete-btn">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <div id="popup-overlay" style="display:none;">
+    <div id="popup-card">
+      <span class="close-btn" onclick="closePopup()">&times;</span>
+      <p id="popup-message"></p>
+      <a href="#" id="popup-ok">OK</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js" defer></script>
+</body>
+
+</html>

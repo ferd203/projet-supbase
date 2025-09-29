@@ -65,7 +65,7 @@ async function creerUser(mail, password) {
         return;
     }
 
-    showPopup("Inscription réussie ! Veuillez vérifier votre email pour confirmer votre compte.", "success", "login.html");
+    showPopup("Inscription réussie ! Veuillez vérifier votre email pour confirmer votre compte.", "success", "index.html");
 }
 
 /**
@@ -90,7 +90,7 @@ async function connecterUser(mail, password) {
     }
 
     if (profile) {
-        window.location.href = "index.html";
+        window.location.href = "accueil.html";
     } else {
         window.location.href = "profile.html";
     }
@@ -109,7 +109,7 @@ async function ajouterProfile(userId, username, bio) {
         return;
     }
 
-    showPopup("Profile ajouté avec succès !", "success", "index.html");
+    showPopup("Profile ajouté avec succès !", "success", "accueil.html");
 }
 
 /**
@@ -121,7 +121,7 @@ async function supprimerProfile(userId) {
         console.error("Error deleting profile:", error);
         return;
     }
-    showPopup("Profile supprimé avec succès!", "success", "login.html");
+    showPopup("Profile supprimé avec succès!", "success", "index.html");
 }
 
 /**
@@ -159,7 +159,7 @@ async function recupererProfile() {
 
     // S'il n'y a pas d'utilisateur, rediriger vers la page de connexion
     if (!user) {
-        window.location.replace("login.html");
+        window.location.replace("index.html");
         return;
     }
 
@@ -186,13 +186,13 @@ async function recupererProfile() {
 // Écouteur d'événement pour le chargement du DOM
 document.addEventListener("DOMContentLoaded", async () => {
     const page = window.location.pathname.split("/").pop();
-    const protectedPages = ["index.html", "profile.html"];
+    const protectedPages = ["accueil.html", "profile.html"];
 
     // Vérification de l'authentification sur les pages protégées
     if (protectedPages.includes(page)) {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
-            window.location.replace("login.html");
+            window.location.replace("index.html");
             return;
         }
         document.body.style.display = "block";
@@ -215,7 +215,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 await creerUser(mail, password);
             });
         }
-    } else if (page === "login.html") {
+    } else if (page === "index.html") {
         const btnConnexion = document.getElementById('btnconnecter');
         if (btnConnexion) {
             btnConnexion.addEventListener('click', async (e) => {
@@ -246,7 +246,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 await ajouterProfile(userId, username, bio);
             });
         }
-    } else if (page === "index.html") {
+    } else if (page === "accueil.html") {
 
         
         recupererProfile();
@@ -256,7 +256,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             deconexionbtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 await supabase.auth.signOut();
-                window.location.replace("login.html");
+                window.location.replace("index.html");
             });
         }
 
@@ -310,7 +310,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 await modifierProfile(user.id, username, bio);
                 document.getElementById("modalModifier").style.display = 'none';
-                showPopup("Profile modifié avec succès!", "success", "index.html");
+                showPopup("Profile modifié avec succès!", "success", "accueil.html");
             });
         }
     }
