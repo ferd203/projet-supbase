@@ -330,9 +330,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 });
 
-supabase.auth.onAuthStateChange((event, session) => {
-  if (event === 'SIGNED_IN') {
-    // Redirige vers index.html après confirmation
-    window.location.href = '/index.html';
-  }
-});
