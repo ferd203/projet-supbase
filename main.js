@@ -4,15 +4,7 @@ const apikey_url = 'https://hbeqttnkcnerflnfuhjw.supabase.co'
 
 const supabase = window.supabase.createClient(apikey_url, apikey)
 
-// Fonction pour créer un utilisateur
-/**
- * Crée un nouvel utilisateur dans Supabase Auth.
- * Affiche un loader pendant l'opération, gère les erreurs (email déjà existant)
- * et affiche des popups de succès ou d'erreur.
- * @param {string} mail - L'adresse email de l'utilisateur à créer.
- * @param {string} password - Le mot de passe de l'utilisateur.
- * @returns {Promise<void>} Une promesse qui se résout une fois l'opération terminée. Ne retourne aucune valeur.
- */
+
 async function creerUser(mail, password) {
     showLoader();
 
@@ -49,12 +41,7 @@ btncrer = document.getElementById('btnCreation')
 btncrer = document.getElementById('btnCreation')
 
 if (btncrer) {
-    /**
-     * Gère l'événement de clic sur le bouton de création de compte.
-     * Récupère les informations du formulaire, valide que les champs sont remplis
-     * et que les mots de passe correspondent, puis appelle la fonction `creerUser`.
-     * @param {Event} e - L'objet d'événement de clic.
-     */
+  
     btncrer.addEventListener('click', async (e) => {
         e.preventDefault();
         const mail = document.getElementById('email').value;
@@ -73,15 +60,7 @@ if (btncrer) {
 
 
 // Fonction pour connecter un utilisateur
-/**
- * Connecte un utilisateur avec son email et son mot de passe.
- * Après une authentification réussie, vérifie si un profil utilisateur existe.
- * Redirige vers la page d'accueil si un profil existe, sinon vers la page de création de profil.
- * Gère les erreurs de connexion en affichant un popup.
- * @param {string} mail - L'adresse email de l'utilisateur.
- * @param {string} password - Le mot de passe de l'utilisateur.
- * @returns {Promise<void>} Une promesse qui se résout une fois l'opération terminée. Ne retourne aucune valeur.
- */
+
 async function connecterUser(mail, password) {
     showLoader();
 
@@ -137,16 +116,6 @@ if (btnConnexion) {
     });
 }
 
-
-
-// Initialisation de la page profile
-/**
- * Initialise la page de création de profil.
- * Vérifie si l'utilisateur est authentifié. S'il ne l'est pas, il est redirigé vers la page de connexion.
- * Ajoute un écouteur d'événement sur le bouton de création de profil pour récupérer les données du formulaire
- * et appeler la fonction `ajouterProfile` lors de la soumission.
- * @returns {Promise<void>} Une promesse qui se résout une fois l'initialisation terminée. Ne retourne aucune valeur.
- */
 async function initProfilePage() {
     // Vérifier que nous sommes bien sur la page profile
     if (!document.getElementById('profilecreation')) return;
@@ -185,20 +154,7 @@ async function initProfilePage() {
 
 
 
-// Appel seulement sur profile.html
 
-
-
-// Fonction pour ajouter un profile dans la table 'profiles'
-/**
- * Ajoute un nouveau profil utilisateur dans la table 'profiles' de Supabase.
- * Affiche un popup de succès et redirige vers la page d'accueil en cas de réussite,
- * ou un popup d'erreur en cas d'échec.
- * @param {string} userId - L'ID de l'utilisateur pour lequel créer le profil.
- * @param {string} username - Le nom d'utilisateur à enregistrer dans le profil.
- * @param {string} bio - La biographie de l'utilisateur.
- * @returns {Promise<void>} Une promesse qui se résout une fois l'opération terminée. Ne retourne aucune valeur.
- */
 async function ajouterProfile(userId, username, bio) {
     const { data, error } = await supabase
         .from('profiles')
@@ -343,14 +299,6 @@ function closePopup() {
 
 
 
-/**
- * Récupère le profil de l'utilisateur actuellement authentifié.
- * Cette fonction obtient d'abord l'utilisateur courant depuis Supabase Auth.
- * Ensuite, elle utilise l'ID de l'utilisateur pour récupérer les informations de son profil
- * depuis la table 'profiles'. Si le profil est trouvé, elle appelle la fonction `afficageProfile`
- * pour afficher les données sur la page.
- * @returns {Promise<null|void>} Une promesse qui se résout avec `null` si aucun utilisateur n'est trouvé ou en cas d'erreur, sinon elle ne retourne rien directement mais déclenche l'affichage du profil.
- */
 async function recupererProfile() {
     const { data: { user, error } } = await supabase.auth.getUser()
     if (error || !user) {
@@ -393,15 +341,7 @@ if (btnsave) {
     });
 }
 
-/**
- * Modifie le profil d'un utilisateur existant dans la table 'profiles' de Supabase.
- * Met à jour le nom d'utilisateur et la biographie en fonction de l'ID utilisateur fourni.
- * En cas d'erreur, un message est affiché dans la console.
- * @param {string} userId - L'ID de l'utilisateur dont le profil doit être mis à jour.
- * @param {string} username - Le nouveau nom d'utilisateur à enregistrer.
- * @param {string} bio - La nouvelle biographie à enregistrer.
- * @returns {Promise<void>} Une promesse qui se résout une fois l'opération terminée. Ne retourne aucune valeur.
- */
+/
 async function modifierProfile(userId, username, bio) {
     const { data, error } = await supabase
         .from('profiles')
@@ -413,14 +353,6 @@ async function modifierProfile(userId, username, bio) {
     }
 }
 
-/**
- * Affiche les informations du profil utilisateur sur la page.
- * Met à jour les éléments HTML avec l'ID 'username' et 'bio' avec les données du profil.
- * @param {object} profile - L'objet profil contenant les informations de l'utilisateur.
- * @param {string} profile.username - Le nom d'utilisateur à afficher.
- * @param {string} profile.bio - La biographie de l'utilisateur à afficher.
- * @returns {void} Cette fonction ne retourne aucune valeur.
- */
 function afficageProfile(profile) {
     if (!profile) return;
     const usernameElement = document.getElementById('username');
@@ -456,33 +388,25 @@ if (window.location.pathname.includes("index.html")) {
 }
 
 
-/**
- * Gère l'initialisation de la page lorsque le DOM est entièrement chargé.
- * Cette fonction vérifie si la page actuelle nécessite une authentification.
- * Si un utilisateur non authentifié tente d'accéder à une page protégée, il est redirigé vers la page de connexion.
- * Elle s'assure également que le contenu de la page d'accueil est affiché uniquement après la vérification de la session.
- * @listens DOMContentLoaded
- * @returns {Promise<void>} Une promesse qui se résout une fois les vérifications et les actions initiales terminées. Ne retourne aucune valeur directe.
- */
-document.addEventListener("DOMContentLoaded", async () => {
-    const page = window.location.pathname.split("/").pop();
-    const protectedPages = ["index.html", "profile.html"];
+// document.addEventListener("DOMContentLoaded", async () => {
+//     const page = window.location.pathname.split("/").pop();
+//     const protectedPages = ["index.html", "profile.html"];
 
-    if (protectedPages.includes(page)) {
-        const { data: { session } } = await supabase.auth.getSession();
+//     if (protectedPages.includes(page)) {
+//         const { data: { session } } = await supabase.auth.getSession();
 
-        if (!session) {
-            window.location.replace("login.html");
-            return;
-        }
-    }
-    if (window.location.pathname.includes("index.html")) {
-        document.body.style.display = "block";
-    }
+//         if (!session) {
+//             window.location.replace("login.html");
+//             return;
+//         }
+//     }
+//     if (window.location.pathname.includes("index.html")) {
+//         document.body.style.display = "block";
+//     }
 
-    // Si on arrive ici → utilisateur autorisé
+//     // Si on arrive ici → utilisateur autorisé
 
-});
+// });
 
 
 // Initialisation de la page profile
