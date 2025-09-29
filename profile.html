@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil</title>
+  <link rel="stylesheet" href="css/style.css"> <!-- réutilise ton CSS existant -->
+</head>
+<body>
+  <div class="container-profile">
+    <h1>Mon Profil</h1>
+    <form>
+      <label for="username">Nom d'utilisateur</label>
+      <input type="text" id="username" name="username" placeholder="Entrez votre nom d'utilisateur" required>
+
+      <label for="bio">Bio</label>
+      <textarea id="bio" name="bio" rows="4" placeholder="Écrivez quelque chose sur vous..." required></textarea>
+      <button type="submit" id="profilecreation">Enregistrer</button>
+      <div id="loader" style="display:none;">
+                <div class="bar"></div>
+      </div>
+    </form>
+  </div>
+  <div id="popup-overlay" style="display:none;">
+    <div id="popup-card">
+        <span class="close-btn" onclick="closePopup()">&times;</span>
+        <p id="popup-message"></p>
+        <a href="#" id="popup-ok">OK</a>
+  </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="main.js"></script>
+</body>
+</html>

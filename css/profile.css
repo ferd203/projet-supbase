@@ -1,0 +1,268 @@
+/* Style global */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f2f5;
+  margin: 0 auto;
+  color: #1c1e21;
+  max-width: 900px;
+  padding: 0 1rem;
+  display: none;
+}
+
+/* En-tête */
+.header {
+  background-color: #1877f2;
+  color: white;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+/* Bouton déconnexion (plus joli, bleu clair) */
+.btn-logout {
+  background-color: #5a9bf5; /* bleu clair */
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s;
+}
+
+.btn-logout:hover {
+  background-color: #4287f5;
+}
+
+/* Conteneur */
+.profile-wrapper {
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+/* Carte profil */
+.profile-card {
+  background: #fff;
+  padding: 3rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  position: relative;
+}
+
+/* Haut du profil */
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* Avatar plus grand et rond */
+.profile-avatar {
+  width: 150px;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #1877f2;
+}
+
+/* Texte */
+.profile-header h2 {
+  margin: 0;
+  font-size: 2rem;
+  color: #333;
+}
+
+.profile-header p {
+  margin-top: 0.75rem;
+  font-size: 1.1rem;
+  color: #555;
+  line-height: 1.5;
+}
+
+/* Icônes en bas à gauche */
+.profile-actions {
+  margin-top: 2.5rem;
+  display: flex;
+  justify-content: flex-start; /* gauche */
+  gap: 1rem;
+}
+
+.icon-btn {
+  background: #f0f2f5;
+  border: none;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  font-size: 1.2rem;
+  color: #555;
+}
+
+.icon-btn:hover {
+  background: #e0e0e0;
+  transform: scale(1.05);
+}
+
+.edit-btn { color: #1877f2; }
+.delete-btn { color: #D9534F; }
+
+/* Overlay couvrant tout l’écran */
+#popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4); /* semi-transparent */
+    z-index: 10000;
+}
+
+/* Carte popup centrée */
+#popup-card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+     /* couleur par défaut error */
+    color: white;
+    border-radius: 8px;
+    padding: 20px 25px 40px 25px; /* padding bas pour OK */
+    width: 320px;
+    max-width: 90%;
+    box-shadow: 0px 8px 20px rgba(0,0,0,0.3);
+    text-align: left;
+    font-family: Arial, sans-serif;
+}
+
+/* Croix pour fermer */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    color: white;
+}
+
+/* Lien OK en bas à droite */
+#popup-ok {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    font-size: 0.9em;
+    text-decoration: none; /* plus de soulignement */
+    font-weight: bold;
+    cursor: pointer;
+    color: white;
+    transition: color 0.2s;
+}
+
+#popup-ok:hover {
+    color: #ddd;
+}
+
+/* Message texte */
+#popup-card p {
+    margin: 0 0 15px 0;
+    line-height: 1.4;
+}
+
+/* Types de popup */
+.popup-error { background-color: #D9534F; }   /* rouge */
+.popup-success { background-color: #3ea33e; } /* vert */
+.popup-info { background-color: #17a2b8; } 
+
+/* Overlay noir semi-transparent */
+.modal {
+  display: none; /* caché par défaut */
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+/* Contenu de la card */
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  width: 500px;
+  max-width: 90%;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.modal-content h3 {
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.modal-content label {
+  display: block;
+  margin: 8px 0 4px;
+}
+
+.modal-content input {
+  width: 480px;
+  padding: 8px;
+  height: 25px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal-actions button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.modal-actions button[type="submit"] {
+  background: #27ae60;
+  color: white;
+}
+
+.modal-actions #btnAnnuler, #btnAnnulerUser {
+  background: #e74c3c;
+  color: white;
+}
+
+textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #dddfe2;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    height: 80px;
+    margin-bottom: 60px;
+     border: 1px solid #ccc;
+    font-family: inherit;
+    resize: vertical; /* redimensionnement seulement vertical */
+}
