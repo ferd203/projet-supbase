@@ -208,8 +208,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const password = document.getElementById('password').value;
                 const confirmPassword = document.getElementById('confirmPassword').value;
 
-                if (!mail || !password || password !== confirmPassword) {
-                    showPopup("Veuillez remplir tous les champs correctement.", "error");
+                if (!mail || !password || !confirmPassword) {
+                    showPopup("Tous les champs sont obligatoires", "error");
+                    return;
+                }
+                if (password!== confirmPassword) {
+                    showPopup("Les mots de passe ne sont pas identiques.", "error");
                     return;
                 }
                 await creerUser(mail, password);
